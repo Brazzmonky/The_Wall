@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" lang="eng">
+	<title>The Wall</title>
+	{% load static %}
+	<link rel="stylesheet" href="{% static 'the_wall_app/css/styles.css' %}">
+</head>
+<body>
+	<div class="header">
+		<h1 class="container">CodingDojo Wall</h1>
+		<h3 class="container">Welcome {{loggedinUser.first_name}}! </h3>
+		<a class="container" href="/logout">Log Off</a>
+	</div>
+	{% if messages %}
+<ul class="messages">    
+    {% for message in messages %}    
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>    
+    {% endfor %}
+</ul>
+	{% endif %}
+	<div class="post">
+	<h2>Post a Message</h2>
+	<form action="/makeapost" method="post">
+		{% csrf_token %}
+		<textarea name="Message" cols="75" rows="10"></textarea>
+		<input type="submit" name="message_button" value="Post a message">
+	</form>
+	</div>
+
+	
+	{% if all_messages %}
+	<div class="messageposts">
+		{% for message in all_messages %}
+		<h4>{{message.Message}} Posted by: {{message.user.first_name}} {{message.user.last_name}}, on: {{message.created_at}}</h4>
+
+	{% if loggedinUser == message.user %}
+	<form action="/deletepost/{{message.id}}" method="post">
+	{% csrf_token %}
+		<input type="submit" name="" value="Delete Message">
+	</form>	
+	{% endif %}
+		<br>
+	
+	{% for comments in all_comments %} 
+	{% if comments.message == message %}
+
+	<p>{{ comments.comment }} commented by: {{ comments.user.first_name }} on: {{ comments.created_at }}</p>
+		{% if loggedinUser == comments.user %}
+	 <a href="/deletecomment/{{comments.id}}">Delete Comment</a>
+	{% endif %}
+	{% endif %}
+	{% endfor %}
+
+
+
+	<h4>Make a comment</h4>
+	<form action="/makeacomment/{{message.id}}" method="post">
+		{% csrf_token %}
+		<textarea name="comment" cols="35" rows="5"></textarea>
+		<input type="submit" name="commentbutton" value="Make a comment">
+	</form>
+	</div>
+		{% endfor %}
+		
+
+   		<br>
+{% endif %}
+
+
+
+</body>
+</html>
